@@ -56,9 +56,16 @@ nano src/assistant_japanese.py
 # { your device model id }と{  your project id }をそれぞれ自分のものに置き換える
 ```
 
+ライブラリの移動
+```sh
+cp -R ~/AIY-voice-kit-python/env/lib/python3.4/site-packages/googlesamples/ ~/AIY-voice-kit-python/src/
+```
+
 VoiceKitサンプルの実行
 
 ```sh
 python src/assistant_japanese.py
 # VoiceKitのプッシュボタンを押してassistantに発話
 ```
+
+
