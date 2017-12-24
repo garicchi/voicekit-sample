@@ -23,7 +23,7 @@ pip install --upgrade google-auth-oauthlib[tool]
 
 OAuth認証で認証を行う
 ```sh
-google-oauthlib-tool --scope https://www.googleapis.com/auth/assistant-sdk-prototype --save --headless --client-secrets ~/assistant.json
+google-oauthlib-tool --scope https://www.googleapis.com/auth/assistant-sdk-prototype --save --headless --client-secrets { your client secret file }
 # 表示されたURLをブラウザに貼り付けて開き、表示されたキーコードをターミナルのEnter the autorization codeの部分に貼り付ける
 ```
 
