@@ -1,9 +1,25 @@
 # -*- coding: utf-8 -*-
+
+# original program is here https://github.com/googlesamples/assistant-sdk-python/blob/master/google-assistant-sdk/googlesamples/assistant/grpc/pushtotalk.py
+# changed point --> "implementation SampleAssistant in pushtotalk.py"
+
+# Copyright (C) 2017 Google Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import aiy.audio
 import aiy.cloudspeech
 import aiy.voicehat
 import aiy.i18n
-import googlesamples.assistant.grpc.pushtotalk as pushtotalk
 import click
 import os
 import sys
@@ -26,35 +42,36 @@ from googlesamples.assistant.grpc import (
 
 from googlesamples.assistant.grpc.pushtotalk import SampleAssistant
 
-ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
-END_OF_UTTERANCE = embedded_assistant_pb2.AssistResponse.END_OF_UTTERANCE
-DIALOG_FOLLOW_ON = embedded_assistant_pb2.DialogStateOut.DIALOG_FOLLOW_ON
-CLOSE_MICROPHONE = embedded_assistant_pb2.DialogStateOut.CLOSE_MICROPHONE
-DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
-device_config=os.path.join(click.get_app_dir('googlesamples-assistant'),'device_config.json')
-verbose=False
 
-def main():
-    device_model_id='{ your device model id }'
-    project_id='{ your project id }'
-    lang='ja-JP'
-    logging.basicConfig(level=logging.DEBUG if verbose else logging.INFO)
-    
-    button = aiy.voicehat.get_button()
-    led = aiy.voicehat.get_led()
+# Google Assistantデバイスの初期設定
+def initialize(device_model_id=None,project_id=None,lang='ja-JP'):
+    # ログ設定
+    logging.basicConfig(level=logging.INFO)
 
-    credentials = os.path.join(click.get_app_dir('google-oauthlib-tool'),'credentials.json')
+    # 認証情報を取得する
+    credentials = os.path.join(
+        click.get_app_dir('google-oauthlib-tool'),
+        'credentials.json'
+    )
     with open(credentials, 'r') as f:
-            credentials = google.oauth2.credentials.Credentials(token=None,
-                                                                **json.load(f))
-            http_request = google.auth.transport.requests.Request()
-            credentials.refresh(http_request)
+        credentials = google.oauth2.credentials.Credentials(token=None,**json.load(f))
+        http_request = google.auth.transport.requests.Request()
+        credentials.refresh(http_request)
+            
+    # デバイス設定の取得
+    device_config=os.path.join(
+        click.get_app_dir('googlesamples-assistant'),
+        'device_config.json'
+    )
     
-    # Create an authorized gRPC channel.
+    # gRPCチャンネルの取得
+    ASSISTANT_API_ENDPOINT='embeddedassistant.googleapis.com'
     grpc_channel = google.auth.transport.grpc.secure_authorized_channel(
-        credentials, http_request, ASSISTANT_API_ENDPOINT)
+        credentials, http_request, ASSISTANT_API_ENDPOINT
+    )
+
+    # オーディオデバイスの取得と設定
     audio_device = None
-    # Configure audio source and sink.
     audio_source = audio_device = (
             audio_device or audio_helpers.SoundDeviceStream(
                 sample_rate=audio_helpers.DEFAULT_AUDIO_SAMPLE_RATE,
@@ -72,7 +89,7 @@ def main():
             )
         ) 
     
-    # Create conversation stream with the given audio source and sink.
+    # conversation streamの作成
     conversation_stream = audio_helpers.ConversationStream(
         source=audio_source,
         sink=audio_sink,
@@ -80,16 +97,10 @@ def main():
         sample_width=audio_helpers.DEFAULT_AUDIO_SAMPLE_WIDTH,
     )
 
+    # device idの取得
     device_id = None
     device_handler = device_helpers.DeviceRequestHandler(device_id)
-    """
-    @device_handler.command('action.devices.commands.OnOff')
-    def onoff(on):
-        if on:
-            logging.info('Turning device on')
-        else:
-            logging.info('Turning device off')
-    """
+
     if not device_id or not device_model_id:
         try:
             with open(device_config) as f:
@@ -103,8 +114,10 @@ def main():
             if not project_id:
                 sys.exit(-1)
             device_base_url = (
-                'https://%s/v1alpha2/projects/%s/devices' % (ASSISTANT_API_ENDPOINT,
-                                                             project_id)
+                'https://%s/v1alpha2/projects/%s/devices' % (
+                    ASSISTANT_API_ENDPOINT,
+                    project_id
+                )
             )
             device_id = str(uuid.uuid1())
             payload = {
@@ -120,24 +133,40 @@ def main():
             os.makedirs(os.path.dirname(device_config), exist_ok=True)
             with open(device_config, 'w') as f:
                 json.dump(payload, f)
+                
+    return device_model_id,device_id,conversation_stream,grpc_channel,device_handler
 
+
+def main():
+    # 自身の情報に置き換える
+    device_model_id='{ your device model id }'
+    project_id='{ your project id }'
+    lang='ja-JP'
+    DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
+
+    button = aiy.voicehat.get_button()
+    led = aiy.voicehat.get_led()
+    # 初期設定
+    device_model_id,device_id,conversation_stream,grpc_channel,device_handler = initialize(device_model_id,project_id,lang)
+    
+    # pushtotalk.pyのSampleAssistantを使用する
     with SampleAssistant(lang, device_model_id, device_id,
                          conversation_stream,
                          grpc_channel, DEFAULT_GRPC_DEADLINE,
                          device_handler) as assistant:
-        
-        
-        assistant.assist()
 
-        wait_for_user_trigger = True
+        continue_talk = False
         while True:
-            if wait_for_user_trigger:
-                print('Press the button and speak')
+            led.set_state(aiy.voicehat.LED.OFF)
+            # 会話が前回からつながっているならボタン入力をスキップ
+            if not continue_talk:
+                print('\n*********************\n')
+                print('ボタンを押して話してください')
+                print('\n*********************\n')
                 button.wait_for_press()
-            continue_conversation = assistant.assist()
-            # wait for user trigger if there is no follow-up turn in
-            # the conversation.
-            wait_for_user_trigger = not continue_conversation
+                
+            led.set_state(aiy.voicehat.LED.ON)
+            continue_talk = assistant.assist()
             
 if __name__ == '__main__':
     main()
