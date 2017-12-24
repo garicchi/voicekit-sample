@@ -32,7 +32,7 @@ google-oauthlib-tool --scope https://www.googleapis.com/auth/assistant-sdk-proto
 # ホームフォルダへ移動
 cd ~
 # デバイス登録
-googlesamples-assistant-devicetool register-model --manufacturer 'developer' --product-name 'voicekit-sample' --type LIGHT --model {  your project id }l
+googlesamples-assistant-devicetool register-model --manufacturer 'developer' --product-name 'voicekit-sample' --type LIGHT --model {  your project id }
 # 登録したデバイスの確認
 googlesamples-assistant-devicetool list --model
 ```
