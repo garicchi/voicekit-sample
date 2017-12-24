@@ -32,13 +32,33 @@ google-oauthlib-tool --scope https://www.googleapis.com/auth/assistant-sdk-proto
 # ホームフォルダへ移動
 cd ~
 # デバイス登録
-googlesamples-assistant-devicetool register-model --manufacturer 'developer' --product-name 'voicekit-sample' --type LIGHT --model voicekit-model
+googlesamples-assistant-devicetool register-model --manufacturer 'developer' --product-name 'voicekit-sample' --type LIGHT --model {  your project id }l
 # 登録したデバイスの確認
 googlesamples-assistant-devicetool list --model
 ```
 
 pushtotalkサンプルの実行
 ```sh
-googlesamples-assistant-pushtotalk --project-id aiyproject2-189517 --device-model-id voicekit-model --lang 'ja-JP'
+googlesamples-assistant-pushtotalk --project-id { your device model id } --device-model-id {  your project id } --lang 'ja-JP'
 # Enterを押してassistantに話す
+```
+
+VoiceKitのサンプルをダウンロード
+```sh
+cd ~/AIY-voice-kit-python
+wget https://raw.githubusercontent.com/garicchi/voicekit-sample/master/assistant_japanese.py -O src/assistant_japanese.py
+```
+
+project-idとdevice-model-idの入力
+
+```sh
+nano src/assistant_japanese.py
+# { your device model id }と{  your project id }をそれぞれ自分のものに置き換える
+```
+
+VoiceKitサンプルの実行
+
+```sh
+python src/assistant_japanese.py
+# VoiceKitのプッシュボタンを押してassistantに発話
 ```
