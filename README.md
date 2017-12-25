@@ -68,4 +68,13 @@ python src/assistant_japanese.py
 # VoiceKitのプッシュボタンを押してassistantに発話
 ```
 
+今回のSDKアップデートをするとAssistantクラスのコンストラクタ第2引数にdevice_model_idを指定するようになりました
+```py
+def main():
+    device_model_id='aiyproject2-189517'
+    credentials = aiy.assistant.auth_helpers.get_assistant_credentials()
+    with Assistant(credentials,device_model_id) as assistant:
+        for event in assistant.start():
+            process_event(event)
 
+```
