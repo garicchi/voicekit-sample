@@ -16,7 +16,12 @@ register model
 
 ```sh
 cd ~
-googlesamples-assistant-devicetool register-model --manufacturer 'developer' --product-name 'voicekit-sample' --type LIGHT --model { your model id }
+googlesamples-assistant-devicetool register-model --manufacturer "developer" --product-name "voicekit-sample" --type LIGHT --trait action.devices.traits.OnOff --model { your model id }
+```
+
+register device
+```sh
+googlesamples-assistant-devicetool register-device --client-type LIBRARY --model { your model id } --device { your device id }
 ```
 
 confirm model registering
