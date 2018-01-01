@@ -39,19 +39,15 @@ launch google assistant app in your phone
 
 tap blue button on the top left
 
-![assistant1](./img/assistant1.png)
-
 tap setting on the top left
 
-![assistant2](./img/assistant2.png)
+![assistant5](./img/assistant5.png)
 
 tap your device which registerd above step
 
-![assistant3](./img/assistant3.png)
-
 set language to your country
 
-![assistant4](./img/assistant4.png)
+![assistant6](./img/assistant6.png)
 
 
 # hotword sample
