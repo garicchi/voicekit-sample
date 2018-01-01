@@ -19,14 +19,44 @@ cd ~
 googlesamples-assistant-devicetool register-model --manufacturer "developer" --product-name "voicekit-sample" --type LIGHT --trait action.devices.traits.OnOff --model { your model id }
 ```
 
+confirm model registering
+```sh
+googlesamples-assistant-devicetool list --model
+```
+
 register device
 ```sh
 googlesamples-assistant-devicetool register-device --client-type LIBRARY --model { your model id } --device { your device id }
 ```
 
-confirm model registering
+confirm device registering
 ```sh
-googlesamples-assistant-devicetool list --model
+googlesamples-assistant-devicetool list --device
+```
+
+# set language on Google Assistant App
+launch google assistant app in your phone
+
+tap blue button on the top left
+
+![assistant1](./img/assistant1.png)
+
+tap setting on the top left
+
+![assistant2](./img/assistant2.png)
+
+tap your device which registerd above step
+
+![assistant3](./img/assistant3.png)
+
+set language to your country
+
+![assistant4](./img/assistant4.png)
+
+
+# hotword sample
+```sh
+googlesamples-assistant-hotword --device_model_id { your model id }
 ```
 
 # push to talk sample
