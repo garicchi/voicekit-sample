@@ -5,7 +5,8 @@ import aiy.voicehat
 import aiy.i18n
 import urllib.request as request
 import json
-from pyjtalk.pyjtalk import PyJtalk()
+from pyjtalk.pyjtalk import PyJtalk
+import argparse
 
 event_name = 'aiy_email'
 webhook_key = '{{ your key is here }}'
@@ -22,6 +23,7 @@ def post_ifttt(event_name,key,values):
         print(b)
 
 def main():
+        
     # 言語設定を日本語にする
     aiy.i18n.set_language_code('ja-JP')
     recognizer = aiy.cloudspeech.get_recognizer()
