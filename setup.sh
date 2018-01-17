@@ -10,7 +10,7 @@ function setup(){
     echo "参考URL[https://developers.google.com/assistant/sdk/guides/library/python/embed/install-sample]"
     section "必要なaptパッケージをインストールします"
     run "sudo apt-get install -y portaudio19-dev libffi-dev libssl-dev"
-
+    run "cd ~"
     section "google-assistant-library pythonパッケージをアップデートします"
     echo "現在のgoogle-assistant-libraryのバージョンを表示します"
     run "pip list|grep google-assistant-library"
@@ -32,6 +32,7 @@ function setup(){
     echo "google-auth-oauthlibのアップデート後のバージョンを表示します"
     run "pip list|grep google-auth-oauthlib"
 
+    run "rm ~/Downloads/*.json"
     section "assistant libraryを利用するためにGCPのOAuth認証情報を作成します"
     echo "GCPのコンソール[https://console.cloud.google.com]をラズパイのブラウザで開いてください"
     wait
@@ -46,11 +47,13 @@ function setup(){
     wait
     echo "API & Services -> ライブラリをクリックし、検索ボックスにgoogle assistantを入力し、Google Assistant APIをクリック、[有効にする]ボタンを押します"
     wait
-    echo "作成されたOAuthクライアントの認証情報JSONをダウンロードします"
+    echo "ダウンロード用のボタンを押し、作成されたOAuthクライアントの認証情報JSONをダウンロードしてください"
     wait
     secret=`ls ~/Downloads/client_secret_*|head -n 1`
     run "cp $secret ~/assistant.json"
     run "cp $secret ~"
+    run "rm $secret"
+    secret=`ls ~/client_secret_*|head -n 1`
     echo "認証を行います。URLが表示されたらブラウザに張り付けてアクセスし、表示された認証コードをターミナルに張り付けてください"
     run "google-oauthlib-tool --scope https://www.googleapis.com/auth/assistant-sdk-prototype --save --headless --client-secrets $secret"
 
@@ -66,7 +69,7 @@ function setup(){
     echo "認証情報がダウンロードされます"
     wait
     secret=`ls -t ~/Downloads/|head -n 1`
-    run "$secret ~/cloud_speech.json"
+    run "mv $secret ~/cloud_speech.json"
     
     section "モデルの登録を行います"
     echo "manufacturerを入力してください(default) developer"
@@ -80,7 +83,7 @@ function setup(){
 	productname='my-voicekit-assistant'
     fi
 
-    echo "model名を入力してくださ( {GCPのProjectname}-{model name}が推奨されています)"
+    echo "model名を入力してください( {GCPのProjectname}-{model name}が推奨されています)"
     read model
 
     run "googlesamples-assistant-devicetool register-model --manufacturer "$manufacturer" --product-name "$productname" --type LIGHT --trait action.devices.traits.OnOff --model $model"
@@ -99,7 +102,7 @@ function setup(){
     section "登録したデバイスの日本語設定を行います"
     echo "スマートフォンからGoogleAssistantアプリを起動し、右上の青いボタンを押します"
     echo "右上の[設定]を押します"
-    echo "デバイスの項目に登録したデバイスである[$device]が表示されているので選択し"
+    echo "デバイスの項目に登録したデバイスである[$productname]が表示されているので選択し"
     echo "アシスタントの言語を[日本語(日本)]に変更します"
     wait
     
@@ -109,7 +112,8 @@ function setup(){
     run "cd ~"
 
     section "音声合成を日本語に対応させます"
-    run "sudo apt-get install -y open-jtalk-mecab-naist-jdic hts-voice-nitech-jp-atr503-m001 openjtalk"
+    run "sudo apt-get install -y open-jtalk-mecab-naist-jdic hts-voice-nitech-jp-atr503-m001 open-jtalk"
+    run "cd ~"
     run "pip install pyjtalk"
 
     section "サンプルコードをダウンロードします"
@@ -117,8 +121,18 @@ function setup(){
     run "wget -P ~/AIY-projects-python/src/examples/voice/ https://raw.githubusercontent.com/garicchi/voicekit-sample/develop/ifttt_email.py"
     run "wget -P ~/AIY-projects-python/src/examples/voice/ https://raw.githubusercontent.com/garicchi/voicekit-sample/develop/conversation.py"
     run "wget -P ~/AIY-projects-python/src/examples/voice/ https://raw.githubusercontent.com/garicchi/voicekit-sample/develop/assistant_japanese.py"
+    run "cd ~/AIY-projects-python"
     section "VoiceKitのセットアップが完了しました"
-    
+}
+
+function assistant_library_demo(){
+    section "assistant_library_demo.pyを実行します"
+    run "python ~/AIY-projects-python/src/examples/voice/assistant_library_demo.py"
+}
+
+function grpc_japanese_demo(){
+    section "assistant_japanese.pyを実行します"
+    run "python ~/AIY-projects-python/src/examples/voice/assistant_japanese.py"
 }
 
 function wait(){
@@ -155,7 +169,7 @@ while true
 do
 	echo ""
 	echo "------ コマンドを入力してください -------"
-	commands=("[setup]--setup_voice_kit" "[exit]--finish_this_script")
+	commands=("[setup]--setup_voice_kit" "[assistant_library_demo]--run_sample" "[grpc_japanese_demo]--run_sample" "[exit]--finish_this_script")
 	for c in ${commands[@]}; do
 		echo $c
 	done
@@ -163,6 +177,8 @@ do
 	echo "you input "$command
 	case "$command" in
 	    "setup" ) setup ;;
+	    "assistant_library_demo" ) assistant_library_demo ;;
+	    "grpc_japanese_demo" ) grpc_japanese_demo ;;
 	    "exit" ) break ;;
 	esac
 
