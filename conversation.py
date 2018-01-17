@@ -5,6 +5,7 @@ import aiy.voicehat
 import aiy.i18n
 import urllib.request as request
 import json
+from pyjtalk.pyjtalk import PyJtalk
 
 docomo_key = '{{ your docomo api key is here }}'
 
@@ -29,7 +30,7 @@ def main():
     # 言語設定を日本語にする
     aiy.i18n.set_language_code('ja-JP')
     recognizer = aiy.cloudspeech.get_recognizer()
-
+    jtalk = PyJtalk()
     button = aiy.voicehat.get_button()
     led = aiy.voicehat.get_led()
     aiy.audio.get_recorder().start()
@@ -46,7 +47,7 @@ def main():
         print('[あなた]%s'%text)
         res = talk(docomo_key,text,context)
         print('[システム]%s'%res['utt'])
-        aiy.audio.say(res['yomi'])
+        jtalk.say(res['yomi'])
         context = res['context']
 
 

@@ -3,11 +3,13 @@ import aiy.audio
 import aiy.cloudspeech
 import aiy.voicehat
 import aiy.i18n
+from pyjtalk.pyjtalk import PyJtalk
 
 def main():
     # 言語設定を日本語にする
     aiy.i18n.set_language_code('ja-JP')
     recognizer = aiy.cloudspeech.get_recognizer()
+    jtalk = PyJtalk()
 
     button = aiy.voicehat.get_button()
     led = aiy.voicehat.get_led()
@@ -16,7 +18,7 @@ def main():
     while True:
         print('Press the button and speak')
         button.wait_for_press()
-        aiy.audio.say('ご用件をどうぞ')
+        jtalk.say('ご用件をどうぞ')
         print('Listening...')
         text = recognizer.recognize()
         if text is None:
@@ -24,7 +26,7 @@ def main():
         else:
             print('You said "', text, '"')
             if '点灯' in text:
-                aiy.audio.say('ライトをつけました')
+                jtalk.say('ライトをつけました')
                 led.set_state(aiy.voicehat.LED.ON)
             elif '終了' in text:
                 break
