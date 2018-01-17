@@ -2,37 +2,37 @@
 
 function setup(){
     run "cd ~"
-    section "setupを実行します"
-    section "aptパッケージをアップデートします"
-    run "cd /var/cache/apt/archives&&sudo dpkg -i --force-overwrite python3-scrollphathd_1.1.0_all.deb"
-    run "sudo apt-get -y update&&sudo apt-get -y upgrade"
-    section "google asssitant sdkをアップデートします"
-    echo "参考URL[https://developers.google.com/assistant/sdk/guides/library/python/embed/install-sample]"
-    section "必要なaptパッケージをインストールします"
-    run "sudo apt-get install -y portaudio19-dev libffi-dev libssl-dev"
-    run "cd ~"
-    section "google-assistant-library pythonパッケージをアップデートします"
-    echo "現在のgoogle-assistant-libraryのバージョンを表示します"
-    run "pip list|grep google-assistant-library"
-    run "pip install -U google-assistant-library"
-    echo "google-assistant libraryのアップデート後のバージョンを表示します"
-    run "pip list|grep google-assistant-library"
+    #section "setupを実行します"
+    #section "aptパッケージをアップデートします"
+    #run "cd /var/cache/apt/archives&&sudo dpkg -i --force-overwrite python3-scrollphathd_1.1.0_all.deb"
+    #run "sudo apt-get -y update&&sudo apt-get -y upgrade"
+    #section "google asssitant sdkをアップデートします"
+    #echo "参考URL[https://developers.google.com/assistant/sdk/guides/library/python/embed/install-sample]"
+    #section "必要なaptパッケージをインストールします"
+    #run "sudo apt-get install -y portaudio19-dev libffi-dev libssl-dev"
+    #run "cd ~"
+    #section "google-assistant-library pythonパッケージをアップデートします"
+    #echo "現在のgoogle-assistant-libraryのバージョンを表示します"
+    #run "pip list|grep google-assistant-library"
+    #run "pip install -U google-assistant-library"
+    #echo "google-assistant libraryのアップデート後のバージョンを表示します"
+    #run "pip list|grep google-assistant-library"
+    #
+    #section "google-assistant-sdk pythonパッケージをアップデートします"
+    #echo "現在のgoogle-assistant-sdkのバージョンを表示します"
+    #run "pip list|grep google-assistant-sdk"
+    #run "pip install -U google-assistant-sdk[samples]"
+    #echo "google-assistant sdkのアップデート後のバージョンは以下です"
+    #run "pip list|grep google-assistant-sdk"
+    #
+    #section "google-auth-oauthlib pythonパッケージをアップデートします"
+    #echo "現在のgoogle-auth-oauthlibのバージョンを表示します"
+    #run "pip list|grep google-auth-oauthlib"
+    #run "pip install -U google-auth-oauthlib[tool]"
+    #echo "google-auth-oauthlibのアップデート後のバージョンを表示します"
+    #run "pip list|grep google-auth-oauthlib"
 
-    section "google-assistant-sdk pythonパッケージをアップデートします"
-    echo "現在のgoogle-assistant-sdkのバージョンを表示します"
-    run "pip list|grep google-assistant-sdk"
-    run "pip install -U google-assistant-sdk[samples]"
-    echo "google-assistant sdkのアップデート後のバージョンは以下です"
-    run "pip list|grep google-assistant-sdk"
-
-    section "google-auth-oauthlib pythonパッケージをアップデートします"
-    echo "現在のgoogle-auth-oauthlibのバージョンを表示します"
-    run "pip list|grep google-auth-oauthlib"
-    run "pip install -U google-auth-oauthlib[tool]"
-    echo "google-auth-oauthlibのアップデート後のバージョンを表示します"
-    run "pip list|grep google-auth-oauthlib"
-
-    run "rm ~/Downloads/*.json"
+    #run "rm ~/Downloads/*.json"
     section "assistant libraryを利用するためにGCPのOAuth認証情報を作成します"
     echo "GCPのコンソール[https://console.cloud.google.com]をラズパイのブラウザで開いてください"
     wait
@@ -52,7 +52,6 @@ function setup(){
     secret=`ls ~/Downloads/client_secret_*|head -n 1`
     run "cp $secret ~/assistant.json"
     run "cp $secret ~"
-    run "rm $secret"
     secret=`ls ~/client_secret_*|head -n 1`
     echo "認証を行います。URLが表示されたらブラウザに張り付けてアクセスし、表示された認証コードをターミナルに張り付けてください"
     run "google-oauthlib-tool --scope https://www.googleapis.com/auth/assistant-sdk-prototype --save --headless --client-secrets $secret"
@@ -68,8 +67,8 @@ function setup(){
     echo "API & Services -> ライブラリをクリックし、検索ボックスにcloud speech apiを入力し、Google Cloud Speech APIをクリック、[有効にする]ボタンを押します"
     echo "認証情報がダウンロードされます"
     wait
-    secret=`ls -t ~/Downloads/|head -n 1`
-    run "mv $secret ~/cloud_speech.json"
+    secret=`ls -t ~/Downloads/*.json|head -n 1`
+    run "cp $secret ~/cloud_speech.json"
     
     section "モデルの登録を行います"
     echo "manufacturerを入力してください(default) developer"
@@ -92,9 +91,14 @@ function setup(){
     run "googlesamples-assistant-devicetool list --model"
 
     section "デバイスの登録を行います"
-    echo "デバイス名を入力してください"
-    read device
-    run "googlesamples-assistant-devicetool register-device --client-type LIBRARY --model $model --device $device"
+    echo "デバイスIDを取得します"
+    run "rm device_id.py"
+    run "wget https://raw.githubusercontent.com/garicchi/voicekit-sample/develop/device_id.py"
+    cmd="python device_id.py --device_model_id $model"
+    echo "$cmd を実行します"
+    device_id=`$cmd`
+    echo "device_idは$device_idです"
+    run "googlesamples-assistant-devicetool register-device --client-type LIBRARY --model $model --device $device_id"
     echo "デバイスの登録が完了しました"
     echo "現在登録されているデバイス一覧を表示します"
     run "googlesamples-assistant-devicetool list --device"
@@ -108,7 +112,7 @@ function setup(){
     
     section "AIYProjectのライブラリコードを更新します"
     run "cd ~/AIY-projects-python"
-    run "git pull"
+    run "git pull --all"
     run "cd ~"
 
     section "音声合成を日本語に対応させます"
@@ -117,17 +121,26 @@ function setup(){
     run "pip install pyjtalk"
 
     section "サンプルコードをダウンロードします"
+    run "rm ~/AIY-projects-python/src/examples/voice/japanese_demo.py"
     run "wget -P ~/AIY-projects-python/src/examples/voice/ https://raw.githubusercontent.com/garicchi/voicekit-sample/develop/japanese_demo.py"
+    run "rm ~/AIY-projects-python/src/examples/voice/ifttt_email.py"
     run "wget -P ~/AIY-projects-python/src/examples/voice/ https://raw.githubusercontent.com/garicchi/voicekit-sample/develop/ifttt_email.py"
+    run "rm ~/AIY-projects-python/src/examples/voice/conversation.py"
     run "wget -P ~/AIY-projects-python/src/examples/voice/ https://raw.githubusercontent.com/garicchi/voicekit-sample/develop/conversation.py"
+    run "rm ~/AIY-projects-python/src/examples/voice/assistant_japanese.py"
     run "wget -P ~/AIY-projects-python/src/examples/voice/ https://raw.githubusercontent.com/garicchi/voicekit-sample/develop/assistant_japanese.py"
+    run "rm ~/AIY-projects-python/src/examples/voice/assistant_library_demo_v2.py"
+    run "wget -O ~/AIY-projects-python/src/examples/voice/assistant_library_demo_v2.py https://raw.githubusercontent.com/google/aiyprojects-raspbian/voicekit/src/assistant_library_demo.py"
+    run "rm ~/AIY-projects-python/src/aiy/assistant/device_helpers.py"
+    run "wget -O ~/AIY-projects-python/src/aiy/assistant/device_helpers.py https://raw.githubusercontent.com/google/aiyprojects-raspbian/voicekit/src/aiy/assistant/device_helpers.py"
     run "cd ~/AIY-projects-python"
     section "VoiceKitのセットアップが完了しました"
 }
 
 function assistant_library_demo(){
     section "assistant_library_demo.pyを実行します"
-    run "python ~/AIY-projects-python/src/examples/voice/assistant_library_demo.py"
+    run "cd ~/AIY-projects-python"
+    run "python ~/AIY-projects-python/src/examples/voice/assistant_library_demo_v2.py"
 }
 
 function grpc_japanese_demo(){
@@ -135,8 +148,26 @@ function grpc_japanese_demo(){
     run "python ~/AIY-projects-python/src/examples/voice/assistant_japanese.py"
 }
 
+function delete_all_models(){
+    section "すべてのモデルを消去します"
+    run "cd ~"
+    models=`googlesamples-assistant-devicetool list --model|&grep "Device Model Id"|cut -d : -f 2|tr -d " "`
+    for model in ${models}; do
+	run "googlesamples-assistant-devicetool delete --model $model"
+    done
+}
+
+function delete_all_devices(){
+    section "すべてのデバイスを消去します"
+    run "cd ~"
+    devices=`googlesamples-assistant-devicetool list --device|&grep "Device Instance Id"|cut -d : -f 2|tr -d " "`
+    for device in ${devices}; do
+	run "googlesamples-assistant-devicetool delete --device $device"
+    done
+}
+
 function wait(){
-    echo "完了したらEnterを押してください"
+    echo "---------完了したらEnterを押してください----------"
     read input
     
 }
@@ -179,7 +210,10 @@ do
 	    "setup" ) setup ;;
 	    "assistant_library_demo" ) assistant_library_demo ;;
 	    "grpc_japanese_demo" ) grpc_japanese_demo ;;
+	    "delete_all_models" ) delete_all_models ;;
+	    "delete_all_devices" ) delete_all_devices ;;
 	    "exit" ) break ;;
+	    * ) echo "認識していないコマンドです" ;;
 	esac
 
 done
