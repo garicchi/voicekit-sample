@@ -160,7 +160,7 @@ function assistant_push_demo(){
 
 function cloud_speech(){
     step "cloud_speech.pyを実行します"
-    run "python ~/AIY-projects-python/src/examples/voice/cloud_speech.py"
+    run "python ~/AIY-projects-python/src/examples/voice/cloud_speech_ja.py"
 }
 
 function ifttt_email(){
