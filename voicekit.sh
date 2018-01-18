@@ -6,6 +6,7 @@ COLOR_CMD="\e[32m"
 COLOR_END="\e[m"
 
 function setup(){
+	
     run "cd ~"
     step "setupを実行します"
     step "aptパッケージをアップデートします"
@@ -140,7 +141,7 @@ function setup(){
     run "rm ~/AIY-projects-python/src/aiy/assistant/device_helpers.py"
     run "wget -O ~/AIY-projects-python/src/aiy/assistant/device_helpers.py https://raw.githubusercontent.com/google/aiyprojects-raspbian/voicekit/src/aiy/assistant/device_helpers.py"
     step "サウンド機器のチェックと初期化を行います"
-    run "python ~/AIY-projects-python/checkpoints/check_audio.py"
+    run "sudo python ~/AIY-projects-python/checkpoints/check_audio.py"
     run "cd ~/AIY-projects-python"
     step "VoiceKitのセットアップが完了しました"
 }
@@ -272,6 +273,8 @@ do
 	for c in ${commands[@]}; do
 		echo -e $c
 	done
+	step_counter=0
+	command_counter=0
 	input_msg "コマンドを入力してください"
 	read command
 	echo "you input "$command
