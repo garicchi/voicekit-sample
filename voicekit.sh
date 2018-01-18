@@ -114,7 +114,6 @@ function setup(){
     echo "デバイスの項目に登録したデバイスである[$productname]が表示されているので選択し"
     echo "アシスタントの言語を[日本語(日本)]に変更します"
     echo "[https://github.com/garicchi/voicekit-sample/blob/develop/set_japanese.md]に解説があるので参考にしてください"
-    
     wait
     
     step "AIYProjectのライブラリコードを更新します"
@@ -140,12 +139,11 @@ function setup(){
     run "wget -O ~/AIY-projects-python/src/examples/voice/assistant_library_demo_v2.py https://raw.githubusercontent.com/google/aiyprojects-raspbian/voicekit/src/assistant_library_demo.py"
     run "rm ~/AIY-projects-python/src/aiy/assistant/device_helpers.py"
     run "wget -O ~/AIY-projects-python/src/aiy/assistant/device_helpers.py https://raw.githubusercontent.com/google/aiyprojects-raspbian/voicekit/src/aiy/assistant/device_helpers.py"
-
 	step "サウンド機器のチェックと初期化を行います"
 	run "python ~/AIY-projects-python/checkpoints/check_audio.py"
-	
+
 	run "cd ~/AIY-projects-python"
-    step "VoiceKitのセットアップが完了しました"
+	step "VoiceKitのセットアップが完了しました"
 }
 
 function assistant_library_demo(){
