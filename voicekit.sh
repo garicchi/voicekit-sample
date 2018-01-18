@@ -140,18 +140,22 @@ function setup(){
     run "wget -O ~/AIY-projects-python/src/examples/voice/assistant_library_demo_v2.py https://raw.githubusercontent.com/google/aiyprojects-raspbian/voicekit/src/assistant_library_demo.py"
     run "rm ~/AIY-projects-python/src/aiy/assistant/device_helpers.py"
     run "wget -O ~/AIY-projects-python/src/aiy/assistant/device_helpers.py https://raw.githubusercontent.com/google/aiyprojects-raspbian/voicekit/src/aiy/assistant/device_helpers.py"
-    run "cd ~/AIY-projects-python"
+
+	setup "サウンド機器のチェックと初期化を行います"
+	run "python ~/AIY-projects-python/checkpoints/check_audio.py"
+	
+	run "cd ~/AIY-projects-python"
     step "VoiceKitのセットアップが完了しました"
 }
 
 function assistant_library_demo(){
     step "assistant_library_demo.pyを実行します"
-    echo "${COLOR_INPUT}assistant_library_demoは現在日本語の「オッケーグーグル」に対応しきれていません。反応しない場合は「オッケーｺﾞｰｺﾞｩ」の
+    echo -e "${COLOR_INPUT}assistant_library_demoは現在日本語の「オッケーグーグル」に対応しきれていません。反応しない場合は「オッケーｺﾞｰｺﾞｩ」の
 ように英語っぽく話しかけてみてください${COLOR_END}"
     run "python ~/AIY-projects-python/src/examples/voice/assistant_library_demo_v2.py"
 }
 
-function assistant_push__demo(){
+function assistant_push_demo(){
     step "assistant_push_demo.pyを実行します"
     run "python ~/AIY-projects-python/src/examples/voice/assistant_push_demo.py"
 }
