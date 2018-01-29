@@ -19,7 +19,6 @@
 import aiy.audio
 import aiy.cloudspeech
 import aiy.voicehat
-import aiy.i18n
 import click
 import os
 import sys
@@ -30,6 +29,10 @@ import logging
 import google.auth.transport.grpc
 import google.auth.transport.requests
 import google.oauth2.credentials
+
+import aiy.assistant.auth_helpers
+import aiy.assistant.device_helpers
+
 from google.assistant.embedded.v1alpha2 import (
     embedded_assistant_pb2,
     embedded_assistant_pb2_grpc
@@ -42,27 +45,14 @@ from googlesamples.assistant.grpc import (
 
 from googlesamples.assistant.grpc.pushtotalk import SampleAssistant
 
-
 # Google Assistantデバイスの初期設定
-def initialize(device_model_id=None,project_id=None,lang='ja-JP'):
+def initialize(credentials,device_id,lang='ja-JP'):
     # ログ設定
     logging.basicConfig(level=logging.INFO)
-
-    # 認証情報を取得する
-    credentials = os.path.join(
-        click.get_app_dir('google-oauthlib-tool'),
-        'credentials.json'
-    )
-    with open(credentials, 'r') as f:
-        credentials = google.oauth2.credentials.Credentials(token=None,**json.load(f))
-        http_request = google.auth.transport.requests.Request()
-        credentials.refresh(http_request)
-            
-    # デバイス設定の取得
-    device_config=os.path.join(
-        click.get_app_dir('googlesamples-assistant'),
-        'device_config.json'
-    )
+    
+    http_request = google.auth.transport.requests.Request()
+    credentials.refresh(http_request)
+    
     
     # gRPCチャンネルの取得
     ASSISTANT_API_ENDPOINT='embeddedassistant.googleapis.com'
@@ -98,57 +88,23 @@ def initialize(device_model_id=None,project_id=None,lang='ja-JP'):
     )
 
     # device idの取得
-    device_id = None
     device_handler = device_helpers.DeviceRequestHandler(device_id)
-
-    if not device_id or not device_model_id:
-        try:
-            with open(device_config) as f:
-                device = json.load(f)
-                device_id = device['id']
-                device_model_id = device['model_id']
-        except Exception as e:
-            
-            if not device_model_id:
-                sys.exit(-1)
-            if not project_id:
-                sys.exit(-1)
-            device_base_url = (
-                'https://%s/v1alpha2/projects/%s/devices' % (
-                    ASSISTANT_API_ENDPOINT,
-                    project_id
-                )
-            )
-            device_id = str(uuid.uuid1())
-            payload = {
-                'id': device_id,
-                'model_id': device_model_id
-            }
-            session = google.auth.transport.requests.AuthorizedSession(
-                credentials
-            )
-            r = session.post(device_base_url, data=json.dumps(payload))
-            if r.status_code != 200:
-                sys.exit(-1)
-            os.makedirs(os.path.dirname(device_config), exist_ok=True)
-            with open(device_config, 'w') as f:
-                json.dump(payload, f)
                 
-    return device_model_id,device_id,conversation_stream,grpc_channel,device_handler
+    return conversation_stream,grpc_channel,device_handler
 
 
 def main():
-    # 自身の情報に置き換える
-    device_model_id='{ your device model id }'
-    project_id='{ your project id }'
     lang='ja-JP'
-    DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
 
     button = aiy.voicehat.get_button()
     led = aiy.voicehat.get_led()
-    # 初期設定
-    device_model_id,device_id,conversation_stream,grpc_channel,device_handler = initialize(device_model_id,project_id,lang)
+    credentials = aiy.assistant.auth_helpers.get_assistant_credentials()
+    device_model_id, device_id = aiy.assistant.device_helpers.get_ids(credentials)
     
+    # 初期設定
+    conversation_stream,grpc_channel,device_handler = initialize(credentials,device_id,lang)
+
+    DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
     # pushtotalk.pyのSampleAssistantを使用する
     with SampleAssistant(lang, device_model_id, device_id,
                          conversation_stream,
