@@ -10,7 +10,7 @@ function setup(){
     run "cd ~"
     step "setupを実行します"
     step "aptパッケージをアップデートします"
-    run "cd /var/cache/apt/archives&&sudo dpkg -i --force-overwrite python3-scrollphathd_1.1.0_all.deb"
+    #run "cd /var/cache/apt/archives&&sudo dpkg -i --force-overwrite python3-scrollphathd_1.1.0_all.deb"
     run "sudo apt-get -y update&&sudo apt-get -y upgrade"
     step "google asssitant sdkをアップデートします"
     echo "参考URL[https://developers.google.com/assistant/sdk/guides/library/python/embed/install-sample]"
@@ -38,7 +38,6 @@ function setup(){
     echo "google-auth-oauthlibのアップデート後のバージョンを表示します"
     run "pip list|grep google-auth-oauthlib"
 
-    run "rm ~/Downloads/*.json"
     step "assistant libraryを利用するためにGCPのOAuth認証情報を作成します"
     echo "GCPのコンソール[https://console.cloud.google.com]をラズパイのブラウザで開いてください"
     wait
@@ -55,12 +54,10 @@ function setup(){
     wait
     echo "ダウンロード用のボタンを押し、作成されたOAuthクライアントの認証情報JSONをダウンロードしてください"
     wait
-    secret=`ls ~/Downloads/client_secret_*|head -n 1`
-    run "cp $secret ~/assistant.json"
-    run "cp $secret ~"
-    secret=`ls ~/client_secret_*|head -n 1`
+    echo "ダウンロードしたjsonファイルをassistant.jsonとしてホームフォルダにおいてください"
+    wait
     echo "認証を行います。URLが表示されたらブラウザに張り付けてアクセスし、表示された認証コードをターミナルに張り付けてください"
-    run "google-oauthlib-tool --scope https://www.googleapis.com/auth/assistant-sdk-prototype --save --headless --client-secrets $secret"
+    run "google-oauthlib-tool --scope https://www.googleapis.com/auth/assistant-sdk-prototype --save --headless --client-secrets ~/assistant.json"
 
     step "cloud speechを利用するためにGCPのサービスアカウント認証情報を作成します"
     echo "GCPのコンソール[https://console.cloud.google.com]をラズパイのブラウザで開いてください"
@@ -71,10 +68,8 @@ function setup(){
     echo "[サービスアカウント名]に適当な名前を入力し、[役割]はProject>閲覧者を選択、キータイプはJSONを選択し[作成]をクリックします"
     wait
     echo "API & Services -> ライブラリをクリックし、検索ボックスにcloud speech apiを入力し、Google Cloud Speech APIをクリック、[有効にする]ボタンを押します"
-    echo "認証情報がダウンロードされます"
+    echo "認証情報がダウンロードされます。　ダウンロードしたjsonファイルをcloud_speech.jsonとしてホームフォルダにおいてください"
     wait
-    secret=`ls -t ~/Downloads/*.json|head -n 1`
-    run "cp $secret ~/cloud_speech.json"
     
     step "モデルの登録を行います"
     input_msg "manufacturerを入力してください(default) developer"
