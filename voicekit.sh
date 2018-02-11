@@ -54,10 +54,12 @@ function setup(){
     wait
     echo "ダウンロード用のボタンを押し、作成されたOAuthクライアントの認証情報JSONをダウンロードしてください"
     wait
-    echo "ダウンロードしたjsonファイルをassistant.jsonとしてホームフォルダにおいてください"
-    wait
+    secret=`ls ~/Downloads/client_secret_*|head -n 1`
+    run "cp $secret ~/assistant.json"
+    run "cp $secret ~"
+    secret=`ls ~/client_secret_*|head -n 1`
     echo "認証を行います。URLが表示されたらブラウザに張り付けてアクセスし、表示された認証コードをターミナルに張り付けてください"
-    run "google-oauthlib-tool --scope https://www.googleapis.com/auth/assistant-sdk-prototype --save --headless --client-secrets ~/assistant.json"
+    run "google-oauthlib-tool --scope https://www.googleapis.com/auth/assistant-sdk-prototype --save --headless --client-secrets $secret"
 
     step "cloud speechを利用するためにGCPのサービスアカウント認証情報を作成します"
     echo "GCPのコンソール[https://console.cloud.google.com]をラズパイのブラウザで開いてください"
