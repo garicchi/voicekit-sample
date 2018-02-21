@@ -48,4 +48,5 @@ googlesamples-assistant-pushtotalk --lang "ja-JP" --device-id {{device id}}
 # start dev terminalを立ち上げる
 wget https://raw.githubusercontent.com/garicchi/voicekit-sample/develop/assistant_push_demo.py
 python assistant_push_demo.py
+# VoiceKitのボタンを押して発話
 ```
