@@ -19,24 +19,24 @@ function setup(){
     run "cd ~"
     step "google-assistant-library pythonパッケージをアップデートします"
     echo "現在のgoogle-assistant-libraryのバージョンを表示します"
-    run "pip list|grep google-assistant-library"
-    run "pip install -U google-assistant-library"
+    run "pip3 list|grep google-assistant-library"
+    run "pip3 install -U google-assistant-library"
     echo "google-assistant libraryのアップデート後のバージョンを表示します"
-    run "pip list|grep google-assistant-library"
+    run "pip3 list|grep google-assistant-library"
     
     step "google-assistant-sdk pythonパッケージをアップデートします"
     echo "現在のgoogle-assistant-sdkのバージョンを表示します"
-    run "pip list|grep google-assistant-sdk"
-    run "pip install -U google-assistant-sdk[samples]"
+    run "pip3 list|grep google-assistant-sdk"
+    run "pip3 install -U google-assistant-sdk[samples]"
     echo "google-assistant sdkのアップデート後のバージョンは以下です"
-    run "pip list|grep google-assistant-sdk"
+    run "pip3 list|grep google-assistant-sdk"
     
     step "google-auth-oauthlib pythonパッケージをアップデートします"
     echo "現在のgoogle-auth-oauthlibのバージョンを表示します"
-    run "pip list|grep google-auth-oauthlib"
-    run "pip install -U google-auth-oauthlib[tool]"
+    run "pip3 list|grep google-auth-oauthlib"
+    run "pip3 install -U google-auth-oauthlib[tool]"
     echo "google-auth-oauthlibのアップデート後のバージョンを表示します"
-    run "pip list|grep google-auth-oauthlib"
+    run "pip3 list|grep google-auth-oauthlib"
 
     step "assistant libraryを利用するためにGCPのOAuth認証情報を作成します"
     echo "GCPのコンソール[https://console.cloud.google.com]をラズパイのブラウザで開いてください"
@@ -97,7 +97,7 @@ function setup(){
     echo "デバイスIDを取得します"
     run "rm device_id.py"
     run "wget https://raw.githubusercontent.com/garicchi/voicekit-sample/develop/device_id.py"
-    cmd="python device_id.py --device_model_id $model"
+    cmd="python3 device_id.py --device_model_id $model"
     echo "$cmd を実行します"
     device_id=`$cmd`
     echo "device_idは$device_idです"
@@ -122,7 +122,7 @@ function setup(){
     step "音声合成を日本語に対応させます"
     run "sudo apt-get install -y open-jtalk-mecab-naist-jdic hts-voice-nitech-jp-atr503-m001 open-jtalk"
     run "cd ~"
-    run "pip install pyjtalk"
+    run "pip3 install pyjtalk"
 
     step "サンプルコードをダウンロードします"
     run "rm ~/AIY-projects-python/src/examples/voice/cloud_speech_ja.py"
@@ -147,17 +147,17 @@ function assistant_library_demo(){
     step "assistant_library_demo.pyを実行します"
     echo -e "${COLOR_INPUT}assistant_library_demoは現在日本語の「オッケーグーグル」に対応しきれていません。反応しない場合は「オッケーｺﾞｰｺﾞｩ」の
 ように英語っぽく話しかけてみてください${COLOR_END}"
-    run "python ~/AIY-projects-python/src/examples/voice/assistant_library_demo_v2.py"
+    run "python3 ~/AIY-projects-python/src/examples/voice/assistant_library_demo_v2.py"
 }
 
 function assistant_push_demo(){
     step "assistant_push_demo.pyを実行します"
-    run "python ~/AIY-projects-python/src/examples/voice/assistant_push_demo.py"
+    run "python3 ~/AIY-projects-python/src/examples/voice/assistant_push_demo.py"
 }
 
 function cloud_speech(){
     step "cloud_speech.pyを実行します"
-    run "python ~/AIY-projects-python/src/examples/voice/cloud_speech_ja.py"
+    run "python3 ~/AIY-projects-python/src/examples/voice/cloud_speech_ja.py"
 }
 
 function ifttt_email(){
@@ -165,7 +165,7 @@ function ifttt_email(){
     step "$codeを実行します"
     echo "日経Linuxかラズパイマガジンの解説を参考にして$code内にキーを指定してください"
     wait
-    run "python $code"
+    run "python3 $code"
 }
 
 function conversation(){
@@ -173,7 +173,7 @@ function conversation(){
     step "$codeを実行します"
     echo "日経Linuxかラズパイマガジンの解説を参考にして$code内にキーを指定してください"
     wait
-    run "python $code"
+    run "python3 $code"
 }
 
 
@@ -232,11 +232,10 @@ function run(){
     command_counter=$((++command_counter))
 }
 
-
-if [ "`python --version |& cut -d . -f 1`" = "Python 2" ]; then
-    echo "Start dev terminalで実行してください"
-    exit 1
-fi
+#if [ "`python --version |& cut -d . -f 1`" = "Python 2" ]; then
+#    echo "Start dev terminalで実行してください"
+#    exit 1
+#fi
 
 step_counter=1
 command_counter=1
