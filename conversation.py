@@ -1,32 +1,55 @@
-# -*- coding: utf-8 -*-
+import requests
+import os
+import json
 import aiy.audio
 import aiy.cloudspeech
 import aiy.voicehat
 import aiy.i18n
-import urllib.request as request
-import json
 from pyjtalk.pyjtalk import PyJtalk
 
-docomo_key = '{{ your docomo api key is here }}'
+docomo_key = "{ docomo api key }"
 
-def talk(key,speech,context=''):
-    headers = {
-        'Content-Type':'application/json'
+
+def registration(config_path,key):
+    regist = "https://api.apigw.smt.docomo.ne.jp/naturalChatting/v1/registration?APIKEY={key}"\
+        .format(key=key)
+    data = {
+        "botId": "Chatting",
+        "appKind": "Smart Phone"
     }
-    body = {
-        'utt':speech,
-        'context':context,
-        'mode':'dialog'
+    res = requests.post(regist, json=data)
+    res_json = res.json()
+
+    with open(config_path, "w") as f:
+        json.dump(res_json, f)
+
+def conversation(key,app_id,speech):
+    url = "https://api.apigw.smt.docomo.ne.jp/naturalChatting/v1/dialogue?APIKEY={key}" \
+        .format(key=key)
+    data = {
+        "botId": "Chatting",
+        "appId": app_id,
+        "voiceText":speech,
+        "language":"ja-JP"
     }
-    content = json.dumps(body,ensure_ascii=False).encode('utf-8')
-    url = 'https://api.apigw.smt.docomo.ne.jp/dialogue/v1/dialogue?APIKEY=%s'%(key)
-    req = request.Request(url,content,headers,method='POST')
-    with request.urlopen(req) as res:
-        b = res.read().decode('utf-8')
-        c = json.loads(b)
-    return c
+    res = requests.post(url, json=data)
+    res_json = res.json()
+    return res_json["systemText"]["utterance"]
 
 def main():
+    cache = os.path.join(os.environ["HOME"],".cache")
+    dialog = os.path.join(cache,"dialog.json")
+    if not os.path.exists(cache):
+        os.mkdir(cache)
+
+    if not os.path.exists(dialog):
+        registration(dialog,docomo_key)
+
+    with open(dialog,"r") as f:
+        config = json.load(f)
+
+    app_id = config["appId"]
+
     # 言語設定を日本語にする
     aiy.i18n.set_language_code('ja-JP')
     recognizer = aiy.cloudspeech.get_recognizer()
@@ -35,7 +58,6 @@ def main():
     led = aiy.voicehat.get_led()
     aiy.audio.get_recorder().start()
 
-    context = ''
     while True:
         led.set_state(aiy.voicehat.LED.BEACON_DARK)
         print('\nボタンを押してください')
@@ -44,13 +66,10 @@ def main():
         print('話してください\n')
         text = recognizer.recognize()
         led.set_state(aiy.voicehat.LED.BLINK)
-        print('[あなた]%s'%text)
-        res = talk(docomo_key,text,context)
-        print('[システム]%s'%res['utt'])
-        jtalk.say(res['yomi'])
-        context = res['context']
+        print('[あなた]%s' % text)
+        res = conversation(docomo_key, app_id, text)
+        print('[システム]%s' % res)
+        jtalk.say(res)
 
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
