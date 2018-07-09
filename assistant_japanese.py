@@ -99,7 +99,7 @@ def main():
     button = aiy.voicehat.get_button()
     led = aiy.voicehat.get_led()
     credentials = aiy.assistant.auth_helpers.get_assistant_credentials()
-    device_model_id, device_id = aiy.assistant.device_helpers.get_ids(credentials)
+    device_model_id, device_id = aiy.assistant.device_helpers.get_ids_for_service(credentials)
     
     # 初期設定
     conversation_stream,grpc_channel,device_handler = initialize(credentials,device_id,lang)
